@@ -1,64 +1,26 @@
-import {config as defaults} from "./lib/defaults";
-import {config as devConfig} from "./lib/dev";
-import {config as prodConfig} from "./lib/prod";
-import {config as stageConfig} from "./lib/staging";
-import {merge} from "lodash";
+import dotenv from 'dotenv';
+dotenv.config();
 
-export type NestedPartial<T> = {
-  [K in keyof T]?: T[K] extends Array<infer R> ? Array<NestedPartial<R>> : NestedPartial<T[K]>;
+export const config = {
+  clientId: process.env.KAFKA_CLIENT_ID,
+  brokerList: process.env.KAFKA_BROKERS_LIST || 'localhost:9092',
+  maxBytesPerPartition:
+    (process.env.FETCH_MESSAGE_MAX_BYTES ? parseInt(process.env.FETCH_MESSAGE_MAX_BYTES) : null) ||
+    10485760,
+  partitionsConsumedConcurrently:
+    (process.env.KAFKA_PARTITIONS_CONSUMED_CONCURRENTLY
+      ? parseInt(process.env.KAFKA_PARTITIONS_CONSUMED_CONCURRENTLY)
+      : null) || 5,
+  heartbeatInterval:
+    (process.env.HEARTBEAT_INTERVAL ? parseInt(process.env.HEARTBEAT_INTERVAL) : null) || 6000,
+  commitInterval:
+    (process.env.COMMIT_INTERVAL ? parseInt(process.env.COMMIT_INTERVAL) : null) || 5000,
+  // loggerLevel:
+  //   (process.env.LOGGER_LEVEL ? logLevel[parseInt(process.env.LOGGER_LEVEL)] : null) ||
+  //   logLevel.INFO,
+  defaultGroupId: process.env.DEFAULT_GROUP_ID,
+  fromBeginning: process.env.FROM_BEGINNING || true,
+  acks: (process.env.ACKS ? parseInt(process.env.ACKS) : null) || -1
 };
 
-export interface ICookie {
-  name: string;
-  maxAgeDuration: number;
-  maxAgeLongDuration: number;
-}
-
-export interface ISite {
-  protocol: string;
-  domainName: string;
-}
-
-export interface IApp {
-  secret: string;
-  cookie: ICookie;
-  site: ISite;
-  port: number;
-  debug: boolean;
-}
-
-export interface IMain {
-  host: string;
-  user: string;
-  password: string;
-  database: string;
-  charset: string;
-}
-
-export interface IDb {
-  main: IMain;
-}
-
-export interface IAppConfig {
-  app: IApp;
-  db: IDb;
-}
-
-function __getEnvConfig(): NestedPartial<IAppConfig> {
-  switch (process.env.NODE_ENV) {
-    case "production":
-      return prodConfig;
-    case "staging":
-      return stageConfig;
-    case "development":
-      return devConfig;
-    default:
-      return {};
-  }
-}
-
-// var config = {};
-// exports = module.exports = _.defaultsDeep(config, __getEnvConfig(), defaults);
-
-// export const AppConfig: IAppConfig = defaults;
-export const AppConfig: IAppConfig = merge(defaults, __getEnvConfig());
+console.log(`Config: ${JSON.stringify(config)}`);

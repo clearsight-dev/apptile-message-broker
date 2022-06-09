@@ -32,3 +32,6 @@ dist
 db_data/
 container-data/
 .DS_Store
+
+.env
+src/test.ts

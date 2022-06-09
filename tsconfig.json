@@ -9,6 +9,7 @@
     "moduleResolution": "node",
     "removeComments": true,
     "allowJs": true,
+    "declaration": true,
     // "noImplicitAny": true,
     // "strictNullChecks": true,
     // "strictFunctionTypes": true,
@@ -27,5 +28,5 @@
     "paths": {"*": ["*", "../common/*"]}
   },
   "exclude": ["node_modules"],
-  "include": ["./src/**/*.tsx", "./src/**/*.ts", "../common/*s"],
+  "include": ["./src/**/*.tsx", "./src/**/*.ts", "../common/*s"]
 }
