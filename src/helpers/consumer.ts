@@ -1,8 +1,10 @@
 import kafkaClient from './client';
 import {config} from '../config';
 import {Consumer} from 'kafkajs';
+import retryHelper from './retry_helper';
 
 import {ApptileEvent, ApptileEventHandler} from '../types';
+import _ from 'lodash';
 
 export default class ApptileEventConsumer {
   private kafkaConsumer: Consumer;
@@ -18,6 +20,8 @@ export default class ApptileEventConsumer {
       if (this.ready) return Promise.resolve();
 
       if (!topicsList) return Promise.reject('Cannot start without a topic list');
+
+      await retryHelper.start();
 
       this.topicsList = topicsList;
 
@@ -39,29 +43,46 @@ export default class ApptileEventConsumer {
         autoCommitInterval: config.commitInterval,
         partitionsConsumedConcurrently: config.partitionsConsumedConcurrently,
         eachMessage: async ({topic, partition, message, heartbeat}) => {
+          var apptileEvent: ApptileEvent;
+          // const eventGuid = message.headers?.eventGuid?.toString();
+          // const requestId = message.headers?.requestId?.toString();
+
           try {
-            console.log('message received', {
+            var keys = message.headers ? Object.keys(message.headers) : [];
+            var headers = {};
+            keys.forEach(function (key) {
+              headers[key] = message.headers[key]?.toString();
+            });
+
+            console.info('message received', {
               topic: topic,
               partition: partition,
               key: message.key?.toString(),
               value: message.value?.toString(),
-              headers: message.headers,
+              headers: headers,
               timestamp: message.timestamp
             });
 
-            const apptileEvent: ApptileEvent = {
+            apptileEvent = {
               topic: topic,
               message: {
                 key: message.key?.toString(),
                 value: JSON.parse(message.value.toString()),
-                headers: message.headers,
+                headers: headers,
                 timestamp: message.timestamp,
                 partition: partition
               }
             };
-            return this.messageHandler(apptileEvent);
           } catch (e) {
-            console.log('message processing failed with error', e);
+            console.log('error occurred while parsing event, ignoring the event');
+            return Promise.resolve();
+          }
+
+          try {
+            await this.messageHandler(apptileEvent);
+          } catch (e) {
+            console.log('error occurred while processing event, retrying event');
+            await retryHelper.retry(apptileEvent, e);
           }
         }
       });

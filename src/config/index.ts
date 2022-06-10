@@ -20,7 +20,14 @@ export const config = {
   //   logLevel.INFO,
   defaultGroupId: process.env.DEFAULT_GROUP_ID,
   fromBeginning: process.env.FROM_BEGINNING || true,
-  acks: (process.env.ACKS ? parseInt(process.env.ACKS) : null) || -1
+  failedEventNumRetryAttempts:
+    (process.env.FAILED_EVENT_NUM_RETRY_ATTEMPTS
+      ? parseInt(process.env.FAILED_EVENT_NUM_RETRY_ATTEMPTS)
+      : null) || 3,
+  retryBackoffDelay:
+    (process.env.RETRY_BACKOFF_DELAY ? parseInt(process.env.RETRY_BACKOFF_DELAY) : null) || 5000,
+  acks: (process.env.ACKS ? parseInt(process.env.ACKS) : null) || -1,
+  failedEventsTopic: process.env.FAILED_EVENTS_TOPIS || 'apptile_failed_events_topic'
 };
 
 console.log(`Config: ${JSON.stringify(config)}`);

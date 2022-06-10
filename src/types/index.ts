@@ -1,10 +1,18 @@
-import {IHeaders} from 'kafkajs';
+export interface ApptileEventHeaders {
+  eventGuid?: string;
+  requestId?: string;
+  clinetId?: string;
+  originalTopic?: string;
+  retryAttempts?: string;
+  retryBackoffDelay?: string;
+  [key: string]: string;
+}
 
 export interface ApptileEventMessage {
   key?: string;
   value: object;
   partition?: number;
-  headers?: IHeaders;
+  headers?: ApptileEventHeaders;
   timestamp?: string;
 }
 
@@ -14,3 +22,9 @@ export interface ApptileEvent {
 }
 
 export type ApptileEventHandler = (payload: ApptileEvent) => Promise<void>;
+
+export class NonRetryableError extends Error {
+  constructor(message?: string) {
+    super(message);
+  }
+}

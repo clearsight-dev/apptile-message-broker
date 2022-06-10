@@ -39,5 +39,7 @@
     "tslint-plugin-prettier": "^2.3.0",
     "typescript": "^4.5.4"
   },
-  "files": ["dist/**/*"]
+  "files": [
+    "dist/**/*"
+  ]
 }

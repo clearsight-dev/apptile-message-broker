@@ -22,7 +22,7 @@ export default class ApptileEventProducer {
         allowAutoTopicCreation: false
       });
       await this.kafkaProducer.connect();
-      //   logger.info(`Kafka Producer is Ready`);
+      console.info(`Kafka Producer is Ready`);
       this.ready = true;
     } catch (e) {
       return Promise.reject(e);
@@ -32,7 +32,7 @@ export default class ApptileEventProducer {
   async produce(event: ApptileEvent) {
     try {
       if (!this.ready) {
-        console.log('Producer not ready');
+        console.error('Producer not ready');
         throw 'Producer not ready';
       }
 
@@ -40,22 +40,15 @@ export default class ApptileEventProducer {
         return Promise.reject('Please define event data');
       }
 
-      //   if (!Array.isArray(messages)) {
-      //     messages = [messages];
-      //   }
+      event.message.headers = event.message.headers || {};
+      var headers = event.message.headers;
 
-      //   if (messages.length == 0) return Promise.resolve();
+      var eventGuid = headers.eventGuid || uuid();
+      headers.eventGuid = eventGuid;
+      headers.clinetId = config.clientId;
+      headers.originalTopic = headers.originalTopic || event.topic;
 
-      //   messages = messages.map((m) => {
-      //     const {value, headers, key} = m;
-      //     return {value, headers, key};
-      //   });
-
-      if (!_.has(event, 'event.message.headers.eventGuid')) {
-        _.set(event, 'message.headers.eventGuid', uuid());
-      }
-
-      const kafkaMessage: Message = {
+      const apptileMessage: Message = {
         key: event.message.key,
         headers: event.message.headers,
         value: JSON.stringify(event.message.value),
@@ -66,13 +59,13 @@ export default class ApptileEventProducer {
       await this.kafkaProducer.send({
         acks: config.acks,
         topic: event.topic,
-        messages: [kafkaMessage]
+        messages: [apptileMessage]
       });
 
-      console.log(`Producer sent message msg to topic ${event.topic}`);
-      return Promise.resolve();
+      console.log(`Producer sent message msg to topic ${event.topic} with eventGuid ${eventGuid}`);
+      return eventGuid;
     } catch (err) {
-      // logger.error(`A problem occurred when sending our message: ${err}`);
+      console.error(`A problem occurred when sending our message: ${err}`);
       return Promise.reject(err);
     }
   }
