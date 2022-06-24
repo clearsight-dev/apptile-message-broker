@@ -29,7 +29,8 @@ export default class ApptileEventConsumer {
         groupId: config.defaultGroupId,
         maxBytesPerPartition: config.maxBytesPerPartition,
         heartbeatInterval: config.heartbeatInterval,
-        fromBeginning: config.fromBeginning
+        fromBeginning: config.fromBeginning,
+        allowAutoTopicCreation: false
       };
 
       this.kafkaConsumer = kafkaClient.consumer(consumerConfig);
