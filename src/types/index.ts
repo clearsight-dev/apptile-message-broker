@@ -5,6 +5,7 @@ export interface ApptileEventHeaders {
   originalTopic?: string;
   retryAttempts?: string;
   retryBackoffDelay?: string;
+  createdAt?: string;
   [key: string]: string;
 }
 

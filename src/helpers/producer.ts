@@ -47,6 +47,7 @@ export default class ApptileEventProducer {
       headers.eventGuid = eventGuid;
       headers.clinetId = config.clientId;
       headers.originalTopic = headers.originalTopic || event.topic;
+      headers.createdAt = headers.createdAt || Date.now().toString();
 
       const apptileMessage: Message = {
         key: event.message.key,
