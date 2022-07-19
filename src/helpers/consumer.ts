@@ -75,19 +75,20 @@ export default class ApptileEventConsumer {
               }
             };
           } catch (e) {
-            console.log('error occurred while parsing event, ignoring the event');
+            console.error(e, 'error occurred while parsing event, ignoring the event');
             return Promise.resolve();
           }
 
           try {
             await this.messageHandler(apptileEvent);
           } catch (e) {
-            console.log('error occurred while processing event, retrying event');
+            console.error(e, 'error occurred while processing event, retrying event');
             await retryHelper.retry(apptileEvent, e);
           }
         }
       });
     } catch (e) {
+      console.error(e, 'error while starting consumer');
       Promise.reject(e);
     }
   }

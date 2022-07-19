@@ -25,6 +25,7 @@ export default class ApptileEventProducer {
       console.info(`Kafka Producer is Ready`);
       this.ready = true;
     } catch (e) {
+      console.error(e, 'error while starting producer');
       return Promise.reject(e);
     }
   }
@@ -37,6 +38,7 @@ export default class ApptileEventProducer {
       }
 
       if (event.message.value == null) {
+        console.error('event data not defined');
         return Promise.reject('Please define event data');
       }
 
@@ -66,7 +68,7 @@ export default class ApptileEventProducer {
       console.log(`Producer sent message msg to topic ${event.topic} with eventGuid ${eventGuid}`);
       return eventGuid;
     } catch (err) {
-      console.error(`A problem occurred when sending our message: ${err}`);
+      console.error(err, `A problem occurred when sending message`);
       return Promise.reject(err);
     }
   }
