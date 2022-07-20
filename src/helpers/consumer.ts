@@ -1,7 +1,7 @@
 import kafkaClient from './client';
 import {config} from '../config';
 import {Consumer} from 'kafkajs';
-import retryHelper from './retry_helper';
+import retryHelper from './retryHelper';
 
 import {ApptileEvent, ApptileEventHandler} from '../types';
 import _ from 'lodash';

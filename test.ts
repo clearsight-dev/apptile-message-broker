@@ -1,22 +1,32 @@
-import {ApptileEventConsumer, ApptileEventProducer, ApptileEvent} from './src';
+// @ts-ignore
+import {ApptileEventConsumer, ApptileEventProducer, ApptileEvent} from '.';
 
 // @ts-ignore
 // import ApptileEventProducer from './helpers/producer';
 
 // @ts-ignore
 const apptileEventConsumer = new ApptileEventConsumer();
+
+// @ts-ignore
 const apptileEventProducer = new ApptileEventProducer();
+// @ts-ignore
+
+const usedTopic = 'apptile_app_user_onboarded';
+
 // @ts-ignore
 async function producerRun() {
   await apptileEventProducer.start();
   for (var i = 0; i < 1; i++) {
     const apptileEvent: ApptileEvent = {
-      topic: 'apptile-app-user-onboarded',
+      topic: usedTopic,
       message: {
         value: {
-          appId: 'app-id-' + i,
-          userId: 'user-id-' + i,
-          index: i
+          eventName: usedTopic,
+          eventData: {
+            appId: 'app-id-' + i,
+            userId: 'user-id-' + i,
+            index: i
+          }
         }
       }
     };
@@ -29,8 +39,9 @@ async function producerRun() {
 
 // @ts-ignore
 async function consumerRun() {
-  await apptileEventConsumer.start(['apptile-app-user-onboarded'], (apptileEvent) => {
-    return Promise.resolve();
+  await apptileEventConsumer.start([usedTopic], (apptileEvent) => {
+    console.log(JSON.stringify(apptileEvent));
+    return Promise.reject();
   });
 }
 
