@@ -14,7 +14,7 @@ class RetryHelper {
   async start() {
     if (!config.retryEventsTopic) {
       Promise.reject(
-        'Cannot start without a consumer specific retry topic. Please set env variable RETRY_EVENTS_TOPIC'
+        'Cannot start without a consumer specific retry topic. Please set env variable KAFKA_CONSUMER_RETRY_EVENTS_TOPIC'
       );
     }
 
