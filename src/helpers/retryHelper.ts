@@ -41,7 +41,8 @@ class RetryHelper {
       } else {
         event.message.headers.retryAttempts = (retryAttemptsHappened + 1).toString();
         event.message.headers.retryBackoffDelay = config.retryBackoffDelay.toString();
-        event.message.headers.retryTopic = config.retryEventsTopic;
+        event.message.headers.retryTopic =
+          event.message.headers.retryTopic || config.retryEventsTopic;
         event.topic = constants.RETRY_EVENTS_TOPIC_FOR_BACKOFF_SCHEDULING;
         await this.kafkaProducer.produce(event);
       }
