@@ -5,13 +5,19 @@ export interface ApptileEventHeaders {
   originalTopic?: string;
   retryAttempts?: string;
   retryBackoffDelay?: string;
+  retryTopic?: string;
   createdAt?: string;
   [key: string]: string;
 }
 
+export interface ApptileEventValue {
+  eventName: string;
+  eventData: object;
+}
+
 export interface ApptileEventMessage {
   key?: string;
-  value: object;
+  value: ApptileEventValue;
   partition?: number;
   headers?: ApptileEventHeaders;
   timestamp?: string;

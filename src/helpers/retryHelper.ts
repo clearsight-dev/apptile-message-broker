@@ -12,6 +12,12 @@ class RetryHelper {
   }
 
   async start() {
+    if (!config.retryEventsTopic) {
+      Promise.reject(
+        'Cannot start without a consumer specific retry topic. Please set env variable AMB_KAFKA_CONSUMER_RETRY_EVENTS_TOPIC'
+      );
+    }
+
     await this.kafkaProducer.start();
   }
 
@@ -35,7 +41,9 @@ class RetryHelper {
       } else {
         event.message.headers.retryAttempts = (retryAttemptsHappened + 1).toString();
         event.message.headers.retryBackoffDelay = config.retryBackoffDelay.toString();
-        event.topic = constants.RETRY_EVENTS_TOPIC;
+        event.message.headers.retryTopic =
+          event.message.headers.retryTopic || config.retryEventsTopic;
+        event.topic = constants.RETRY_EVENTS_TOPIC_FOR_BACKOFF_SCHEDULING;
         await this.kafkaProducer.produce(event);
       }
     }
