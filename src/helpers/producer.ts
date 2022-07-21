@@ -37,9 +37,13 @@ export default class ApptileEventProducer {
         throw 'Producer not ready';
       }
 
-      if (event.message.value == null) {
-        console.error('event data not defined');
-        return Promise.reject('Please define event data');
+      if (
+        event.message.value == null ||
+        event.message.value.eventName == null ||
+        event.message.value.eventData == null
+      ) {
+        console.error('event.message.value object not defined correctly');
+        return Promise.reject('Please define event.message.value correctly');
       }
 
       event.message.headers = event.message.headers || {};
