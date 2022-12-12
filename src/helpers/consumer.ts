@@ -1,5 +1,5 @@
 import kafkaClient from './client';
-import {config} from '../config';
+import {config, IConsumerConfig} from '../config';
 import {Consumer} from 'kafkajs';
 import retryHelper from './retryHelper';
 
@@ -11,7 +11,10 @@ export default class ApptileEventConsumer {
   private topicsList: string[];
   private messageHandler: ApptileEventHandler;
   private ready: boolean;
-  constructor() {
+  private consumerConfig: IConsumerConfig;
+
+  constructor(consumerConfig?: IConsumerConfig) {
+    this.consumerConfig = {...config.consumerConfig, ...consumerConfig};
     this.ready = false;
   }
 
@@ -21,15 +24,15 @@ export default class ApptileEventConsumer {
 
       if (!topicsList) return Promise.reject('Cannot start without a topic list');
 
-      await retryHelper.start();
+      await retryHelper.start(this.consumerConfig);
 
       this.topicsList = topicsList;
 
       const consumerConfig = {
-        groupId: config.defaultGroupId,
-        maxBytesPerPartition: config.maxBytesPerPartition,
-        heartbeatInterval: config.heartbeatInterval,
-        fromBeginning: config.fromBeginning,
+        groupId: this.consumerConfig.groupId,
+        maxBytesPerPartition: this.consumerConfig.maxBytesPerPartition,
+        heartbeatInterval: this.consumerConfig.heartbeatInterval,
+        fromBeginning: this.consumerConfig.fromBeginning,
         allowAutoTopicCreation: false
       };
 
@@ -41,8 +44,8 @@ export default class ApptileEventConsumer {
 
       await this.kafkaConsumer.run({
         autoCommit: true,
-        autoCommitInterval: config.commitInterval,
-        partitionsConsumedConcurrently: config.partitionsConsumedConcurrently,
+        autoCommitInterval: this.consumerConfig.commitInterval,
+        partitionsConsumedConcurrently: this.consumerConfig.partitionsConsumedConcurrently,
         eachMessage: async ({topic, partition, message, heartbeat}) => {
           var apptileEvent: ApptileEvent;
           // const eventGuid = message.headers?.eventGuid?.toString();
@@ -83,7 +86,7 @@ export default class ApptileEventConsumer {
             await this.messageHandler(apptileEvent);
           } catch (e) {
             console.error(e, 'error occurred while processing event, retrying event');
-            await retryHelper.retry(apptileEvent, e);
+            await retryHelper.retry(apptileEvent, this.consumerConfig, e);
           }
         }
       });

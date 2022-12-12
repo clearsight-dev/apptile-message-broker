@@ -64,7 +64,7 @@ export default class ApptileEventProducer {
       };
 
       await this.kafkaProducer.send({
-        acks: config.acks,
+        acks: config.producerConfig.acks,
         topic: event.topic,
         messages: [apptileMessage]
       });
