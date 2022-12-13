@@ -58,7 +58,7 @@ export default class ApptileEventConsumer {
               headers[key] = message.headers[key]?.toString();
             });
 
-            console.info('message received', {
+            console.info(`message received on consumer group: '${this.consumerConfig.groupId}', `, {
               topic: topic,
               partition: partition,
               key: message.key?.toString(),
