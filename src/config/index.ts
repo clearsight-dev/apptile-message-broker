@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export interface IConsumerConfig {
-  groupId: string;
+  groupId?: string;
   retryEventsTopic?: string;
   maxBytesPerPartition?: number;
   heartbeatInterval?: number;
@@ -11,7 +11,7 @@ export interface IConsumerConfig {
   partitionsConsumedConcurrently?: number;
   retryBackoffDelay?: number;
   failedEventNumRetryAttempts?: number;
-  failedEventsTopic: string;
+  failedEventsTopic?: string;
 }
 
 export interface IProducerConfig {
