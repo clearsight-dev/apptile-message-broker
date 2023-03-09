@@ -25,7 +25,7 @@ coverage
 # Benchmarking
 benchmarks/graphs
 
-#TS
+# TS
 dist
 db_data/
 container-data/
