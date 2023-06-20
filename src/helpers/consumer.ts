@@ -66,15 +66,6 @@ export default class ApptileEventConsumer {
               headers[key] = message.headers[key]?.toString();
             });
 
-            console.info(`message received on consumer group: '${this.consumerConfig.groupId}', `, {
-              topic: topic,
-              partition: partition,
-              key: message.key?.toString(),
-              value: message.value?.toString(),
-              headers: headers,
-              timestamp: message.timestamp
-            });
-
             apptileEvent = {
               topic: topic,
               message: {
@@ -85,8 +76,14 @@ export default class ApptileEventConsumer {
                 partition: partition
               }
             };
+
+            logger.debug(
+              `message received on consumer group: '${
+                this.consumerConfig.groupId
+              }', ${JSON.stringify(apptileEvent)}`
+            );
           } catch (e) {
-            console.error(e, 'error occurred while parsing event, ignoring the event');
+            logger.error('error occurred while parsing event, ignoring the event', e);
             return Promise.resolve();
           }
 
@@ -106,7 +103,7 @@ export default class ApptileEventConsumer {
         }
       });
     } catch (e) {
-      console.error(e, 'error while starting consumer');
+      logger.error('error while starting consumer', e);
       Promise.reject(e);
     }
   }

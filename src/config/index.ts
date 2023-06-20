@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import {logger} from '../apptile-common';
 dotenv.config();
 
 export interface IConsumerConfig {
@@ -68,4 +69,4 @@ export const config: IKafkaConfig = {
   }
 };
 
-console.log(`Config: ${JSON.stringify(config)}`);
+logger.debug(`Config: ${JSON.stringify(config)}`);

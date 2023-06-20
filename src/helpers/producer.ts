@@ -5,7 +5,7 @@ import {Producer, Message} from 'kafkajs';
 import {ApptileEvent} from '../types';
 import _ from 'lodash';
 import {v4 as uuid} from 'uuid';
-import {generateTraceId, getTracingId} from '../apptile-common';
+import {generateTraceId, getTracingId, logger} from '../apptile-common';
 
 export default class ApptileEventProducer {
   private ready: boolean;
@@ -23,10 +23,10 @@ export default class ApptileEventProducer {
         allowAutoTopicCreation: false
       });
       await this.kafkaProducer.connect();
-      console.info(`Kafka Producer is Ready`);
+      logger.info(`Kafka Producer is Ready`);
       this.ready = true;
     } catch (e) {
-      console.error(e, 'error while starting producer');
+      logger.error('error while starting producer', e);
       return Promise.reject(e);
     }
   }
@@ -34,7 +34,7 @@ export default class ApptileEventProducer {
   async produce(event: ApptileEvent) {
     try {
       if (!this.ready) {
-        console.error('Producer not ready');
+        logger.error('Producer not ready');
         throw 'Producer not ready';
       }
 
@@ -43,7 +43,7 @@ export default class ApptileEventProducer {
         event.message.value.eventName == null ||
         event.message.value.eventData == null
       ) {
-        console.error('event.message.value object not defined correctly');
+        logger.error('event.message.value object not defined correctly');
         return Promise.reject('Please define event.message.value correctly');
       }
 
@@ -71,10 +71,10 @@ export default class ApptileEventProducer {
         messages: [apptileMessage]
       });
 
-      console.log(`Producer sent message msg to topic ${event.topic} with eventGuid ${eventGuid}`);
+      logger.debug(`Producer sent message msg to topic ${event.topic} with eventGuid ${eventGuid}`);
       return eventGuid;
     } catch (err) {
-      console.error(err, `A problem occurred when sending message`);
+      logger.error(`A problem occurred when sending message`, err);
       return Promise.reject(err);
     }
   }

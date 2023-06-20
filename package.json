@@ -1,6 +1,6 @@
 {
   "name": "apptile-message-broker",
-  "version": "1.0.0",
+  "version": "1.3.0",
   "description": "Apptile Kafka Wrapper SDK",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

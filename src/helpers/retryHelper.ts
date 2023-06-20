@@ -3,6 +3,7 @@ import {IConsumerConfig} from '../config';
 import {constants} from '../constants/constants';
 import {ApptileEvent, NonRetryableError} from '../types';
 import ApptileEventProducer from './producer';
+import {logger} from '../apptile-common';
 
 class RetryHelper {
   readonly kafkaProducer: ApptileEventProducer;
@@ -24,18 +25,18 @@ class RetryHelper {
   async retry(event: ApptileEvent, consumerConfig: IConsumerConfig, error: Error) {
     event.message.partition = null;
     if (error && error instanceof NonRetryableError) {
-      console.log('error is NonRetryable, pushing the event to failed queue');
+      logger.debug('error is NonRetryable, pushing the event to failed queue');
       event.topic = consumerConfig.failedEventsTopic;
       this.kafkaProducer.produce(event);
     } else {
-      console.log('pushing the event to retry queue for retrying');
+      logger.debug('pushing the event to retry queue for retrying');
       event.message.headers = event.message.headers || {};
 
       var num = parseInt(event.message.headers.retryAttempts || '0');
       var retryAttemptsHappened = isNaN(num) ? 0 : num;
 
       if (retryAttemptsHappened >= consumerConfig.failedEventNumRetryAttempts) {
-        console.log('max number of retry attempts reached, pushing the event to failed queue');
+        logger.debug('max number of retry attempts reached, pushing the event to failed queue');
         event.topic = consumerConfig.failedEventsTopic;
         await this.kafkaProducer.produce(event);
       } else {
