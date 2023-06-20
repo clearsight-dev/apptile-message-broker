@@ -5,6 +5,7 @@ import {Producer, Message} from 'kafkajs';
 import {ApptileEvent} from '../types';
 import _ from 'lodash';
 import {v4 as uuid} from 'uuid';
+import {generateTraceId, getTracingId} from '../apptile-common';
 
 export default class ApptileEventProducer {
   private ready: boolean;
@@ -54,6 +55,7 @@ export default class ApptileEventProducer {
       headers.clinetId = config.clientId;
       headers.originalTopic = headers.originalTopic || event.topic;
       headers.createdAt = headers.createdAt || Date.now().toString();
+      headers.traceId = getTracingId() || generateTraceId();
 
       const apptileMessage: Message = {
         key: event.message.key,

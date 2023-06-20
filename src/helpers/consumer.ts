@@ -5,6 +5,14 @@ import retryHelper from './retryHelper';
 
 import {ApptileEvent, ApptileEventHandler} from '../types';
 import _ from 'lodash';
+import {
+  generateTraceId,
+  logger,
+  NAMESPACE_LOG_TRACE_EVENT_GUID_KEY,
+  requestTracingNamespace,
+  setTracingId,
+  setValueInNamespace
+} from '../apptile-common';
 
 export default class ApptileEventConsumer {
   private kafkaConsumer: Consumer;
@@ -82,12 +90,19 @@ export default class ApptileEventConsumer {
             return Promise.resolve();
           }
 
-          try {
-            await this.messageHandler(apptileEvent);
-          } catch (e) {
-            console.error(e, 'error occurred while processing event, retrying event');
-            await retryHelper.retry(apptileEvent, this.consumerConfig, e);
-          }
+          const {eventGuid, traceId} = apptileEvent.message.headers;
+          const tracingId = traceId || generateTraceId();
+
+          requestTracingNamespace.run(async () => {
+            setTracingId(tracingId);
+            setValueInNamespace(NAMESPACE_LOG_TRACE_EVENT_GUID_KEY, eventGuid);
+            try {
+              await this.messageHandler(apptileEvent);
+            } catch (e) {
+              logger.error('error occurred while processing event, retrying event', e);
+              await retryHelper.retry(apptileEvent, this.consumerConfig, e);
+            }
+          });
         }
       });
     } catch (e) {

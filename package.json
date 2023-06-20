@@ -17,6 +17,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "apptile-backend-utils": "github:clearsight-dev/apptile-backend-utils#v0.1.5",
     "dotenv": "^16.0.1",
     "express": "^4.17.2",
     "kafkajs": "^2.0.2",

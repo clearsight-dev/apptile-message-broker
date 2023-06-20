@@ -1,6 +1,6 @@
 export interface ApptileEventHeaders {
   eventGuid?: string;
-  requestId?: string;
+  traceId?: string;
   clinetId?: string;
   originalTopic?: string;
   retryAttempts?: string;
